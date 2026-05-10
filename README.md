@@ -1,4 +1,4 @@
-﻿# Spam Mail Detection Website ❤️
+﻿# 🚫📩 AI Powered Spam Mail Detection Website 🤖
  
 ## Description 😀
 1. The Website will tell you the message entered is spam or ham.
