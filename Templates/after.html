@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no" />
+  <link rel="manifest" href="/static/CSS/manifest.json" />
+  <meta name="theme-color" content="#3588e7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" type="text/css" href="/static/CSS/after.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="/static/CSS/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon"
+        href="https://assets-v2.lottiefiles.com/a/03b87f8a-1175-11ee-bace-bf75cb96e8fe/3z50CzNh65.gif">  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&family=Sen&display=swap" rel="stylesheet">
+  <title>Detected Email</title>
+  <style>
+    /* Skeleton Loader Styles */
+    .skeleton {
+      display: block;
+      width: 100%;
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      animation: skeleton-loading 1.5s ease-in-out infinite;
+    }
+
+    .skeleton-circle {
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+      background: #f0f0f0;
+      border-radius: 50%;
+      animation: skeleton-loading 1.5s ease-in-out infinite;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-color: #f0f0f0;
+      }
+
+      50% {
+        background-color: #e0e0e0;
+      }
+
+      100% {
+        background-color: #f0f0f0;
+      }
+    }
+
+    /* Loader and Content Transition */
+    #loaderContainer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      transition: opacity 1s ease-out;
+      position: relative;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #resultContainer {
+      display: none;
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transition: opacity 1s ease-in;
+    }
+
+    #resultContainer.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Your existing styles for result display */
+    * {
+      font-family: 'Sen', sans-serif;
+      font-size: 19px;
+    }
+
+    #container {
+      height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .circle {
+      border-radius: 50%;
+      width: 150px;
+      height: 150px;
+      position: absolute;
+      opacity: 0;
+      animation: scaleIn 4s infinite cubic-bezier(.36, .11, .89, .32);
+    }
+
+    .no {
+      background-color: rgb(68, 187, 34);
+    }
+
+    .yes {
+      background-color: red;
+    }
+
+    .item {
+      z-index: 100;
+      padding: 5px;
+    }
+
+    .item img {
+      width: 150px;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(.5, .5);
+        opacity: .5;
+      }
+
+      to {
+        transform: scale(2.5, 2.5);
+        opacity: 0;
+      }
+    }
+
+    mark {
+      background-color: rgba(255, 255, 0, 0.621);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    /* Media Queries for Skeleton Loader */
+    @media (max-width: 768px) {
+      .skeleton {
+        width: 80%;
+        /* Adjust the width for smaller screens */
+        margin: 10px auto;
+        /* Center-align for smaller screens */
+        height: 15px;
+        /* Make the skeleton a bit smaller for mobile */
+      }
+
+      .skeleton-circle {
+        width: 60px;
+        height: 60px;
+      }
+
+
+    }
+
+    @media (max-width: 480px) {
+      .skeleton {
+        width: 90%;
+        /* Further reduce width on very small screens */
+        margin: 5px auto;
+        height: 12px;
+        /* Smaller height for very small screens */
+      }
+
+      .skeleton-circle {
+        width: 80px;
+        height: 80px;
+      }
+
+
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- Skeleton Loader Container (Visible Initially) -->
+  <div id="loaderContainer">
+    <div class="skeleton skeleton-circle"></div>
+    <div class="skeleton" style="width: 60%; margin: 20px auto; height: 20px;"></div>
+    <div class="skeleton" style="width: 80%; margin: 10px auto; height: 50px;"></div>
+    <div class="skeleton" style="width: 60%; margin: 20px auto; height: 20px;"></div>
+  </div>
+
+  <!-- Result Container (Initially Hidden) -->
+
+  <div id="resultContainer" class="hidden"
+    style="background-image: url(https://media1.tenor.com/m/b4zdQYrHJGgAAAAd/seamless-tunnel-background-seamless-tunnel-wallpaper.gif); background-size: cover;">
+
+
+
+    {% if data == 'ham' %}
+    <div style="position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: opacity 1s ease-in;background-color: #ffffffdd;">
+    
+  <!--Pointer wala code hai-->
+      <div class="bubble">
+
+    </div>
+
+    <script>
+        document.addEventListener("mousemove", (event) => {
+            const bubble = document.querySelector(".bubble");
+            bubble.style.transform = `translate(${event.clientX - 15}px, ${event.clientY - 15}px)`;
+        });
+    </script>
+    <!-- Preloader -->
+    <style>
+        .bubble {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: rgb(21, 196, 97);
+            border-radius: 50%;
+            pointer-events: none;
+            /* Prevent interaction */
+            transition: transform 0.1s ease-out;
+        }
+</style>
+      <div id="outerContainer">
+        <div id="container">
+          <div class="item">
+            <img src="{{ url_for('static', filename='no.png') }}" />
+          </div>
+          <div class="circle no" style="animation-delay: 0s"></div>
+          <div class="circle no" style="animation-delay: 1s"></div>
+          <div class="circle no" style="animation-delay: 2s"></div>
+          <div class="circle no" style="animation-delay: 3s"></div>
+        </div>
+      </div>
+      <center>
+        <h3>The message is clear. <mark style="background-color: yellow; border-radius: 0.2rem;">No</mark> Spam
+          detected.</h3>
+        <a href='/'><button type="submit" value="predict" class="btn btn-outline-info mt-4">Go back to home
+            page</button></a>
+      </center>
+    </div>
+    {% else %}
+    <div style="position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: opacity 1s ease-in;background-color: #ffffffdd;">
+    
+  <!--Pointer wala code hai-->
+      <div class="bubble">
+
+    </div>
+
+    <script>
+        document.addEventListener("mousemove", (event) => {
+            const bubble = document.querySelector(".bubble");
+            bubble.style.transform = `translate(${event.clientX - 15}px, ${event.clientY - 15}px)`;
+        });
+    </script>
+    <!-- Preloader -->
+    <style>
+        .bubble {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #ff0000d8;
+            border-radius: 50%;
+            pointer-events: none;
+            /* Prevent interaction */
+            transition: transform 0.1s ease-out;
+        }
+</style>
+      <div id="outerContainer">
+        <div id="container">
+          <div class="item">
+            <img src="{{ url_for('static', filename='YES.png') }}" />
+          </div>
+          <div class="circle yes" style="animation-delay: 0s"></div>
+          <div class="circle yes" style="animation-delay: 1s"></div>
+          <div class="circle yes" style="animation-delay: 2s"></div>
+          <div class="circle yes" style="animation-delay: 3s"></div>
+        </div>
+      </div>
+      <center>
+        <h3>Spam message detected !!</h3>
+        <a href='/'><button type="submit" value="predict" class="btn btn-outline-info mt-4">Go back to home
+            page</button></a>
+      </center>
+    </div>
+    {% endif %}
+  </div>
+  
+  <script>
+    window.onload = function () {
+      const result = "{{ data }}";  // Flask se data aayega yahan
+      const msg = new SpeechSynthesisUtterance();
+      msg.lang = "hi-IN"; // hi-IN
+      msg.rate = 1;
+
+      // Display skeleton loader for 3 seconds before showing result
+      setTimeout(function () {
+        // Fade out the loader and show result container in the same place
+        document.getElementById("loaderContainer").style.opacity = 0;  // Fade out the loader
+        setTimeout(function () {
+          document.getElementById("loaderContainer").classList.add("hidden"); // Hide loader completely
+          document.getElementById("resultContainer").classList.add("show"); // Show the result
+        }, 1000); // Allow fade-out effect
+
+        // Speak result message
+        if (result === "ham") {
+          msg.text = "The message is clear. No Spam detected.";
+        } else {
+          msg.text = "एआई मशीन ने स्पैम मैसेज को डिटेक्ट कर दिया है, जो आप अभी स्क्रीन पर देख रहे हैं।";
+        }
+
+        window.speechSynthesis.speak(msg);
+      }, 3000);  // Delay of 3 seconds for skeleton loading
+    };
+  </script>
+
+  <!-- Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('✅ Service Worker registered'))
+        .catch(error => console.error('❌ Service Worker registration failed:', error));
+    }
+  </script>
+
+</body>
+
+</html>

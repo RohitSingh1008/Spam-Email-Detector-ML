@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no" />
+    <link rel="manifest" href="/static/CSS/manifest.json" />
+    <meta name="theme-color" content="#3588e7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Spam Email Detection</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+        </script>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <!--href="{{ url_for('static', filename='1.png') }}" also can be-->
+    <link rel="shortcut icon"
+        href="https://assets-v2.lottiefiles.com/a/03b87f8a-1175-11ee-bace-bf75cb96e8fe/3z50CzNh65.gif">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&family=Sen&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/CSS/index.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Preloader & Textarea AI Badge Styles -->
+    <style>
+        body.loaded #loader {
+            display: none;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url(https://img.freepik.com/free-vector/wave-background_53876-115944.jpg?semt=ais_hybrid&w=740);
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader-icon {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin-top: 10px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .textarea-badge {
+            position: absolute;
+            bottom: 12px;
+            right: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #3588e7;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 5px 10px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+            
+        }
+
+
+        .ai-icon {
+            height: 20px;
+            width: 20px;
+        }
+
+        .loader-circle {
+            height: 18px;
+            width: 18px;
+            border: 2px solid #3498db;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        textarea.form-control {
+            position: relative;
+            padding-right: 160px;
+        }
+    </style>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+      @keyframes click-tap {
+        0%, 100% {
+          transform: scale(1) translate(0, 0);
+        }
+        30% {
+          transform: scale(0.95) translateY(1px);
+        }
+        60% {
+          transform: scale(1.02) translateY(-1px);
+        }
+      }
+
+      .animate-clickfeel {
+        animation: click-tap 2.5s ease-in-out infinite;
+      }
+    }
+  </style>
+</head>
+<!-- 
+1. https://i.pinimg.com/originals/1d/30/b5/1d30b5a0c298c02edaf2f501b22a6587.gif
+2. https://i.pinimg.com/originals/55/01/60/5501609ee45d514d1f2c4a63502045e2.gif
+3. https://i.gifer.com/origin/b3/b398a4990c72116fc77f486fe176662d_w200.webp
+4. https://i.pinimg.com/originals/19/10/63/191063a8fc5a4da4eccdb6e406c52089.gif
+5. https://media.giphy.com/media/8t8Yamlz9ctfc4Dhuu/giphy.gif?cid=ecf05e47bu4nubjj3xvjuuy842bfn7ajwg9u6wv56xv02o4f&ep=v1_gifs_search&rid=giphy.gif&ct=g
+6. https://media.giphy.com/media/5Pj0jGCLWeKv4G0aTB/giphy.gif?cid=ecf05e474zm9dbqw3jfatpnz6ms6h7n0nqyj8vhbb41f3yuy&ep=v1_gifs_related&rid=giphy.gif&ct=g  
+
+7. https://i.pinimg.com/originals/1d/30/b5/1d30b5a0c298c02edaf2f501b22a6587.gif ye pahle tha
+-->
+
+<body
+    style="background: url(https://files.123freevectors.com/wp-content/original/149309-dark-blue-background-design-template-vector-graphic.jpg) no-repeat;background-size: cover;height: 100vh;">
+
+
+    <div class="bubble">
+
+    </div>
+
+    <script>
+        document.addEventListener("mousemove", (event) => {
+            const bubble = document.querySelector(".bubble");
+            bubble.style.transform = `translate(${event.clientX - 15}px, ${event.clientY - 15}px)`;
+        });
+    </script>
+    <!-- Preloader -->
+    <style>
+        .bubble {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0, 150, 255, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            /* Prevent interaction */
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Blurry animated central effect */
+        .glow-blur {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgb(8, 97, 199), transparent 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(100px);
+            animation: pulseBlur 6s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes pulseBlur {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.6;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <div id="loader">
+        <div style="background: url(https://media.giphy.com/media/8t8Yamlz9ctfc4Dhuu/giphy.gif?cid=ecf05e47bu4nubjj3xvjuuy842bfn7ajwg9u6wv56xv02o4f&ep=v1_gifs_search&rid=giphy.gif&ct=g) no-repeat center;
+       background-color: #fff;
+        border-radius: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 300px; /* set width and height to visualize border-radius */
+    height: 300px;">
+
+
+            <div class="glow-blur"></div>
+
+            <img style="height:90px;border: 2px solid #3498db;padding: 5px; border-radius: 20px; background-color: #0a65a1;cursor: pointer;"
+                src="https://assets-v2.lottiefiles.com/a/03b87f8a-1175-11ee-bace-bf75cb96e8fe/3z50CzNh65.gif" alt="">
+
+            <div class="loader-icon">
+                <img class="spinner-border" alt="AI" src="{{ url_for('static', filename='AI-image.png') }}"
+                    style="width: 25px; height: 25px;border: none;margin-bottom: 40px;">
+            </div><br>
+            <strong
+                style="color: #023c63;background-color: #f3f3f3; padding-left:5px;padding-right: 5px; border-radius: 8px;">Please
+                wait...</strong>
+        </div>
+        <br><br><br>
+
+
+        <h1 style="font-family: 'Orbitron', sans-serif;font-size: 40px;" class="text-5xl logo-font text-blue-600">SpamShield <span style="font-family: 'Orbitron', sans-serif; font-size: 40px;color: #0e8785;" class="text-5xl">AI</span></h1>
+    <p class="text-lg mt-2 text-gray-500" style="text-align: center;justify-content: center;">Note : AI-powered tool to detect spam email, message & protect your inbox.</p>
+       <!--<h5><strong style="text-shadow: 2px 2px 5px #fff;letter-spacing: 2px;">SpamShield AI</strong></h5>--> 
+    </div>
+
+    <!-- Page Content -->
+    <center> 
+        <nav class="navbarr sticky-top" style="background: linear-gradient(to right, #3b82f6, #ffffff, #3b82f6);border-bottom-right-radius: 100%;">
+            <div class="container-fluid">
+        <h1 style="font-family: 'Orbitron', sans-serif;font-size: 20px;" class="text-5xl logo-font text-blue-600">SpamShield <span style="font-family: 'Orbitron', sans-serif; font-size: 20px;color: #0e8785;" class="text-5xl">AI</span></h1>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="mb-1">
+                <div class="mg mt-1"  onclick="toggleFullscreen()" style="background: url(https://media.giphy.com/media/8t8Yamlz9ctfc4Dhuu/giphy.gif?cid=ecf05e47bu4nubjj3xvjuuy842bfn7ajwg9u6wv56xv02o4f&ep=v1_gifs_search&rid=giphy.gif&ct=g) no-repeat center;
+       background-color: #fff;
+        border-radius: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 120px; /* set width and height to visualize border-radius */
+    height: 120px;">
+                    
+
+
+                        <div class="glow-blur"></div>
+
+                        <img style="height:90px;border: 2px solid #3498db;padding: 5px; border-radius: 20px; background-color: #0a65a1;cursor: pointer;"
+                            src="https://assets-v2.lottiefiles.com/a/03b87f8a-1175-11ee-bace-bf75cb96e8fe/3z50CzNh65.gif"
+                            alt="">
+                    
+                </div>
+
+                <!-- FORM -->
+                <form method="POST" action="{{url_for('predict')}}" >
+                    <label for="exampleFormControlTextarea1" class="form-label"></label>
+
+                    <!-- Textarea wrapper -->
+                    <div style="position: relative;margin-bottom: 10px;"> 
+                        <textarea class="form-control w-full p-4 rounded-2xl focus:outline-none"
+                            id="exampleFormControlTextarea1" rows="7" name="email"
+                            placeholder="Write or paste your email or message here..." required></textarea>
+
+
+                        <!-- Mic Icon Button -->
+                        <!-- Audio file -->
+                        <audio id="startSound1" src="{{ url_for('static', filename='mic-music.wav') }}"
+                            preload="auto"></audio>
+                        <audio id="startSound2" src="{{ url_for('static', filename='mic-music.wav') }}"
+                            preload="auto"></audio>
+                        <button type="button" id="micBtn" title="Speak your message"
+                            class="absolute bottom-2 left-2 bg-gradient-to-r from-purple-400 via-blue-500 to-indigo-600 rounded-full hover:bg-blue-600 text-white p-2 rounded-full shadow-md focus:outline-none transition"
+                            style="z-index: 10;">
+                            <svg class="svg-mic-sound1" width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" aria-label="" class="h-[18px] w-[18px]"
+                                font-size="inherit">
+                                <path
+                                    d="M11.165 4.41699C11.165 3.22048 10.1955 2.25018 8.99902 2.25C7.80241 2.25 6.83203 3.22038 6.83203 4.41699V8.16699C6.83221 9.36346 7.80252 10.333 8.99902 10.333C10.1954 10.3328 11.1649 9.36335 11.165 8.16699V4.41699ZM12.665 8.16699C12.6649 10.1918 11.0238 11.8328 8.99902 11.833C6.97409 11.833 5.33221 10.1919 5.33203 8.16699V4.41699C5.33203 2.39195 6.97398 0.75 8.99902 0.75C11.0239 0.750176 12.665 2.39206 12.665 4.41699V8.16699Z"
+                                    fill="currentColor"></path>
+                                <path
+                                    d="M14.8058 9.11426C14.4089 8.99623 13.9915 9.22244 13.8732 9.61914C13.2481 11.7194 11.3018 13.25 9.00011 13.25C6.69845 13.25 4.75214 11.7194 4.12706 9.61914C4.00876 9.22245 3.59126 8.99626 3.19444 9.11426C2.79744 9.23241 2.57141 9.65085 2.68956 10.0479C3.43005 12.5353 5.60114 14.4067 8.25011 14.707V15.75H6.91612C6.50191 15.75 6.16612 16.0858 6.16612 16.5C6.16612 16.9142 6.50191 17.25 6.91612 17.25H11.0831L11.1593 17.2461C11.5376 17.2078 11.8331 16.8884 11.8331 16.5C11.8331 16.1116 11.5376 15.7922 11.1593 15.7539L11.0831 15.75H9.75011V14.707C12.3991 14.4066 14.5702 12.5353 15.3107 10.0479C15.4288 9.65085 15.2028 9.23241 14.8058 9.11426Z"
+                                    fill="currentColor"></path>
+                            </svg>
+                        </button>
+                        <!-- AI-like Animated Icon -->
+                        <div id="ai-icon"
+                            class="absolute bottom-2 right-2 hidden animate-pulse flex items-center space-x-2">
+                                    <h1 style="font-family: 'Orbitron', sans-serif;font-size: 13px;" class="text-5xl logo-font text-blue-600">SpamShield <span style="font-family: 'Orbitron', sans-serif; font-size: 13px;color: #0e8785;" class="text-5xl">AI</span></h1>
+
+                            <span style="color: #3498db;font-size: 15px;">Detecting...</span>
+
+                            <div class="spinner-border text-info w-8 h-8 bg-gradient-to-r from-purple-400 via-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-md"
+                                style="border: 2px solid #355dd4;" role="status">
+                                <img alt="AI" src="{{ url_for('static', filename='AI-image.png') }}"
+                                    style="width: 25px; height: 25px;">
+
+
+                                <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"
+                                    preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%;">
+                                    <defs>
+                                        <clipPath id="__clip">
+                                            <rect width="32" height="32" x="0" y="0"></rect>
+                                        </clipPath>
+                                        <g id="__shape">
+                                            <g transform="matrix(-1,0,0,-1,16,16)">
+                                                <g transform="matrix(1,0,0,1,0,0)">
+                                                    <path fill="url(#__gradient1)"
+                                                        d="M0.027,14C0.48,6.49,6.49,0.48,14,0.027C14,0.027,14,-0.027,14,-0.027C6.49,-0.48,0.48,-6.49,0.027,-14C0.027,-14,-0.027,-14,-0.027,-14C-0.48,-6.49,-6.49,-0.48,-14,-0.027C-14,-0.027,-14,0.027,-14,0.027C-6.49,0.48,-0.48,6.49,-0.027,14C-0.027,14,0.027,14,0.027,14z" />
+                                                </g>
+                                            </g>
+                                        </g>
+                                        <linearGradient id="__gradient1" gradientUnits="userSpaceOnUse" x1="-9.223"
+                                            y1="8.49" x2="10.462" y2="-8.212">
+                                            <stop offset="0%" stop-color="rgb(255,255,255)" />
+                                            <stop offset="100%" stop-color="rgb(255,255,255)" />
+                                        </linearGradient>
+                                        <linearGradient id="__gradient2" gradientUnits="userSpaceOnUse" x1="-4.003"
+                                            y1="4.63" x2="8.092" y2="-7.886">
+                                            <stop offset="0%" stop-color="rgb(255,255,255)" />
+                                            <stop offset="100%" stop-color="rgb(255,255,255)" />
+                                        </linearGradient>
+                                        <mask id="__mask" mask-type="alpha">
+                                            <use xlink:href="#__shape"></use>
+                                        </mask>
+                                    </defs>
+                                    <g clip-path="url(#__clip)">
+                                        <g mask="url(#__mask)">
+                                            <g transform="matrix(1,0,0,1,16,16)">
+                                                <g transform="matrix(1,0,0,1,0,0)">
+                                                    <path fill="url(#__gradient2)"
+                                                        d="M0,-16C8.83,-16,16,-8.83,16,0C16,8.83,8.83,16,0,16C-8.83,16,-16,8.83,-16,0C-16,-8.83,-8.83,-16,0,-16z" />
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </svg>-->
+
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <!-- Button and Spinner -->
+                    <div class="text-center mt-4">
+                        <button id="detectBtn" type="button"
+                            class="svg-mic-sound2 btn btn-outline-info animate-clickfeel transition-all duration-300">
+                            Detect Message</button>
+
+
+                        <div id="loadingSpinner" class="text-center mt-3 d-none">
+                            <div class="spinner-border text-info" role="status">
+                                <img alt="AI" src="{{ url_for('static', filename='AI-image.png') }}"
+                                    style="width: 25px; height: 25px;">
+
+                            </div>
+                            <p class="mt-2" style="color: rgb(68, 187, 34);">
+                                <strong style="color: #fefefe;">Please wait...</strong>
+                            </p>
+                        </div>
+                    </div>
+                </form>
+                
+                <div id="errorBox" class="text-danger mt-2"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="container-fluid footer text-center pt-0">
+          
+            <div class="parfo mt-2"> Designed by <strong><a class="developer__link" style="text-decoration: none;"
+                        href="https://rohitsinghp.netlify.app/">Rohit Singh</a></strong> &#169;
+                2025</div>
+            <style>
+                .developer__link:hover {
+                    color: #2b4da2;
+                }
+
+                .rungta__clg__link {
+                    text-decoration: none;
+                    background: url(https://i.gifer.com/origin/b3/b398a4990c72116fc77f486fe176662d_w200.webp);
+                    padding: 5px;
+                    text-shadow: 2px 2px 5px white;
+                    border-radius: 0.2rem;
+                }
+
+                .rungta__clg__link:hover {
+                    color: #fff;
+                }
+            </style>
+            <!--<div class="pb-2 mt-2 parfo">At <strong><a class="rungta__clg__link" href="https://rungta.ac.in"><span
+                            style="background-color: #f3f3f354;padding: 2px;border-radius: 0.2rem;">RCET Machine
+                            Learning Laboratory</span></a></strong> Bhilai (Durg), CG-490024</div>-->
+        </footer>
+    </center>
+    <!-- Both Same Python script start-->
+    <script>
+        document.querySelector(".svg-mic-sound1").addEventListener("click", function () {
+            document.getElementById("startSound1").play();
+        });
+    </script>
+
+    <script>
+        document.querySelector(".svg-mic-sound2").addEventListener("click", function () {
+            document.getElementById("startSound2").play();
+        });
+    </script>
+    <!-- Both Same Python script end-->
+
+
+
+
+    <script>
+        const micBtn = document.getElementById("micBtn");
+        const inputField = document.getElementById("exampleFormControlTextarea1");
+
+        // Check for browser compatibility
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            micBtn.addEventListener("click", () => {
+                recognition.start();
+                micBtn.innerHTML = ` <div class="animate-pulse" style="display: flex; flex-direction: row; align-items: center;cursor:wait;">
+
+    <!--<svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+        xmlns="http://www.w3.org/2000/svg" aria-label="" class="h-[18px] w-[18px]"
+        font-size="inherit">
+        <path
+            d="M11.165 4.41699C11.165 3.22048 10.1955 2.25018 8.99902 2.25C7.80241 2.25 6.83203 3.22038 6.83203 4.41699V8.16699C6.83221 9.36346 7.80252 10.333 8.99902 10.333C10.1954 10.3328 11.1649 9.36335 11.165 8.16699V4.41699ZM12.665 8.16699C12.6649 10.1918 11.0238 11.8328 8.99902 11.833C6.97409 11.833 5.33221 10.1919 5.33203 8.16699V4.41699C5.33203 2.39195 6.97398 0.75 8.99902 0.75C11.0239 0.750176 12.665 2.39206 12.665 4.41699V8.16699Z"
+            fill="currentColor"></path>
+        <path
+            d="M14.8058 9.11426C14.4089 8.99623 13.9915 9.22244 13.8732 9.61914C13.2481 11.7194 11.3018 13.25 9.00011 13.25C6.69845 13.25 4.75214 11.7194 4.12706 9.61914C4.00876 9.22245 3.59126 8.99626 3.19444 9.11426C2.79744 9.23241 2.57141 9.65085 2.68956 10.0479C3.43005 12.5353 5.60114 14.4067 8.25011 14.707V15.75H6.91612C6.50191 15.75 6.16612 16.0858 6.16612 16.5C6.16612 16.9142 6.50191 17.25 6.91612 17.25H11.0831L11.1593 17.2461C11.5376 17.2078 11.8331 16.8884 11.8331 16.5C11.8331 16.1116 11.5376 15.7922 11.1593 15.7539L11.0831 15.75H9.75011V14.707C12.3991 14.4066 14.5702 12.5353 15.3107 10.0479C15.4288 9.65085 15.2028 9.23241 14.8058 9.11426Z"
+            fill="currentColor"></path>
+    </svg>-->
+
+      <img class="spinner-border" alt="AI" src="{{ url_for('static', filename='AI-image.png') }}"
+                                    style="width: 20px; height: 20px;border:none;">
+    <span style="margin-left: 6px;font-size:15px;">Listening...</span>
+</div>
+
+`;
+                micBtn.disabled = true;
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                inputField.value += (inputField.value ? ' ' : '') + transcript;
+                document.getElementById("ai-icon").classList.remove("hidden");
+
+                setTimeout(() => {
+                    document.getElementById("ai-icon").classList.add("hidden");
+                }, 2000);
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech recognition error:", event.error);
+                //   alert("⚠️ Speech recognition error: " + event.error);
+            };
+
+            recognition.onend = () => {
+                micBtn.innerHTML = `
+                                    <svg class="svg-mic-sound2" width="18" height="18" viewBox="0 0 18 18" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" aria-label="" class="h-[18px] w-[18px]"
+                                font-size="inherit">
+                                <path
+                                    d="M11.165 4.41699C11.165 3.22048 10.1955 2.25018 8.99902 2.25C7.80241 2.25 6.83203 3.22038 6.83203 4.41699V8.16699C6.83221 9.36346 7.80252 10.333 8.99902 10.333C10.1954 10.3328 11.1649 9.36335 11.165 8.16699V4.41699ZM12.665 8.16699C12.6649 10.1918 11.0238 11.8328 8.99902 11.833C6.97409 11.833 5.33221 10.1919 5.33203 8.16699V4.41699C5.33203 2.39195 6.97398 0.75 8.99902 0.75C11.0239 0.750176 12.665 2.39206 12.665 4.41699V8.16699Z"
+                                    fill="currentColor"></path>
+                                <path
+                                    d="M14.8058 9.11426C14.4089 8.99623 13.9915 9.22244 13.8732 9.61914C13.2481 11.7194 11.3018 13.25 9.00011 13.25C6.69845 13.25 4.75214 11.7194 4.12706 9.61914C4.00876 9.22245 3.59126 8.99626 3.19444 9.11426C2.79744 9.23241 2.57141 9.65085 2.68956 10.0479C3.43005 12.5353 5.60114 14.4067 8.25011 14.707V15.75H6.91612C6.50191 15.75 6.16612 16.0858 6.16612 16.5C6.16612 16.9142 6.50191 17.25 6.91612 17.25H11.0831L11.1593 17.2461C11.5376 17.2078 11.8331 16.8884 11.8331 16.5C11.8331 16.1116 11.5376 15.7922 11.1593 15.7539L11.0831 15.75H9.75011V14.707C12.3991 14.4066 14.5702 12.5353 15.3107 10.0479C15.4288 9.65085 15.2028 9.23241 14.8058 9.11426Z"
+                                    fill="currentColor"></path>
+                            </svg>`;
+                micBtn.disabled = false;
+            };
+        } else {
+            micBtn.disabled = true;
+            micBtn.title = "Speech recognition not supported in this browser.";
+        }
+    </script>
+
+    <!-- Preloader Script -->
+    <script>
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                document.body.classList.add("loaded");
+            }, 3100);
+        });
+    </script>
+
+    <!-- Detection Button Script -->
+    <script>
+        document.getElementById("detectBtn").addEventListener("click", function () {
+            const btn = this;
+            const spinner = document.getElementById("loadingSpinner");
+            const form = btn.closest("form");
+            const textarea = document.getElementById("exampleFormControlTextarea1");
+            const errorBox = document.getElementById("errorBox");
+
+            errorBox.innerText = "";
+
+            if (textarea.value.trim() === "") {
+                const errorMsg = "🚫 Please enter your email message, only then the analysis can be performed.";
+                errorBox.innerText = errorMsg;
+
+
+
+                const errorVoice = new SpeechSynthesisUtterance(errorMsg);
+                errorVoice.lang = "hi-IN";
+                window.speechSynthesis.speak(errorVoice);
+                return;
+            }
+
+            btn.innerText = "Detecting now...";
+            btn.disabled = true;
+            btn.style.cursor = "wait";
+            btn.style.backgroundColor = "#fff";
+            btn.style.color = "#000";
+
+
+
+            spinner.classList.remove("d-none");
+
+            const msg = new SpeechSynthesisUtterance("Please wait! AI is analyzing your message.");
+            msg.lang = "hi-IN";
+            window.speechSynthesis.speak(msg);
+
+            setTimeout(() => {
+                btn.innerText = "Detect Message";
+                btn.disabled = false;
+                btn.style.cursor = "pointer";
+                btn.style.background = "#fff";
+                btn.style.color = "#000"
+                spinner.classList.add("d-none");
+                form.submit();
+            }, 2500);
+        });
+    </script>
+
+    <!-- JavaScript to show AI icon on typing -->
+    <script>
+        const textarea = document.getElementById('exampleFormControlTextarea1');
+        const aiIcon = document.getElementById('ai-icon');
+
+        let typingTimer;
+        textarea.addEventListener('input', () => {
+            aiIcon.classList.remove('hidden');
+
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                aiIcon.classList.add('hidden');
+            }, 2000); // icon hides after 2s of inactivity
+        });
+    </script>
+
+    <!-- Fullscreen Toggle -->
+    <script>
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch((err) => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log('✅ Service Worker registered'))
+                .catch(error => console.error('❌ Service Worker registration failed:', error));
+        }
+    </script>
+</body>
+
+</html>
